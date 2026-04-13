@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM AI Mindset Quiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0A0A0F;
+    --surface: #13131A;
+    --surface2: #1C1C27;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #F0EEF8;
+    --muted: #8A87A0;
+    --accent1: #7C6FF7;
+    --accent2: #4ECDC4;
+    --accent3: #FF6B9D;
+    --accent4: #FFB347;
+    --glow1: rgba(124,111,247,0.15);
+    --glow2: rgba(78,205,196,0.12);
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -30%;
+    left: -20%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(124,111,247,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(circle, rgba(78,205,196,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── SCREENS ── */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* ── INTRO ── */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(124,111,247,0.12);
+    border: 1px solid rgba(124,111,247,0.3);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #A89EF8;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent1); display: inline-block; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+
+  h1 {
+    font-family: var(--font-head);
+    font-size: clamp(36px, 6vw, 58px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  h1 .line2 { color: var(--accent1); }
+
+  .intro-desc {
+    font-size: 17px;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 560px;
+    margin-bottom: 40px;
+  }
+
+  .intro-cards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 44px;
+  }
+  .intro-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 16px;
+    text-align: center;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+  .intro-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+  .intro-card .ic-icon { font-size: 28px; margin-bottom: 8px; }
+  .intro-card .ic-label { font-size: 13px; font-weight: 500; color: var(--muted); }
+  .intro-card .ic-name { font-family: var(--font-head); font-size: 14px; font-weight: 700; color: var(--text); margin-top: 4px; }
+
+  .btn-start {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent1);
+    color: #fff;
+    font-family: var(--font-head);
+    font-size: 16px;
+    font-weight: 700;
+    border: none;
+    border-radius: 14px;
+    padding: 16px 36px;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+    letter-spacing: 0.01em;
+  }
+  .btn-start:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-start svg { width: 18px; height: 18px; }
+
+  .quiz-note {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* ── QUIZ ── */
+  .progress-bar {
+    background: var(--surface);
+    border-radius: 999px;
+    height: 4px;
+    margin-bottom: 36px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    border-radius: 999px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .q-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .q-num { font-size: 13px; color: var(--muted); font-weight: 500; }
+  .q-category {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: rgba(78,205,196,0.1);
+    color: var(--accent2);
+    border: 1px solid rgba(78,205,196,0.2);
+  }
+
+  .q-text {
+    font-family: var(--font-head);
+    font-size: clamp(20px, 3.5vw, 26px);
+    font-weight: 700;
+    line-height: 1.25;
+    margin-bottom: 32px;
+    color: var(--text);
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    text-align: left;
+  }
+  .option:hover:not(.selected):not(.locked) {
+    border-color: rgba(124,111,247,0.4);
+    background: rgba(124,111,247,0.06);
+  }
+  .option.selected {
+    border-color: var(--accent1);
+    background: rgba(124,111,247,0.1);
+  }
+  .option.locked { pointer-events: none; }
+
+  .opt-letter {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    font-family: var(--font-head);
+    transition: all 0.22s;
+  }
+  .option.selected .opt-letter {
+    background: var(--accent1);
+    border-color: var(--accent1);
+    color: #fff;
+  }
+
+  .opt-text { font-size: 15px; line-height: 1.5; color: var(--muted); transition: color 0.22s; padding-top: 2px; }
+  .option.selected .opt-text { color: var(--text); }
+
+  .btn-next {
+    margin-top: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--accent1);
+    color: #fff;
+    font-family: var(--font-head);
+    font-size: 15px;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 28px;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s, transform 0.3s, background 0.2s;
+    pointer-events: none;
+  }
+  .btn-next.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .btn-next:hover { background: #6a5fe0; }
+
+  /* ── RESULT ── */
+  .result-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--font-head);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 24px;
+  }
+
+  .result-title {
+    font-family: var(--font-head);
+    font-size: clamp(30px, 5vw, 46px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    letter-spacing: -0.02em;
+  }
+
+  .result-desc {
+    font-size: 16px;
+    color: var(--muted);
+    line-height: 1.75;
+    max-width: 580px;
+    margin-bottom: 36px;
+  }
+
+  /* Score meter */
+  .score-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
+  }
+  .score-label { font-size: 13px; color: var(--muted); font-weight: 500; margin-bottom: 14px; }
+  .score-track {
+    position: relative;
+    height: 10px;
+    background: var(--surface2);
+    border-radius: 999px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 1.2s cubic-bezier(0.4,0,0.2,1) 0.3s;
+  }
+  .score-markers {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+  .score-markers span { flex: 1; text-align: center; }
+  .score-markers span:first-child { text-align: left; }
+  .score-markers span:last-child { text-align: right; }
+
+  .score-num {
+    font-family: var(--font-head);
+    font-size: 52px;
+    font-weight: 800;
+    line-height: 1;
+    margin-top: 16px;
+  }
+  .score-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+  /* Dimension bars */
+  .dims {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+  .dims-title {
+    font-family: var(--font-head);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 20px;
+  }
+  .dim-row { margin-bottom: 16px; }
+  .dim-row:last-child { margin-bottom: 0; }
+  .dim-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+  .dim-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .dim-val { font-family: var(--font-head); font-size: 14px; font-weight: 700; }
+  .dim-track { height: 6px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
+  .dim-fill { height: 100%; border-radius: 999px; transition: width 1s cubic-bezier(0.4,0,0.2,1) 0.5s; }
+
+  /* Tips */
+  .tips-title {
+    font-family: var(--font-head);
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 16px;
+  }
+  .tips-grid { display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+  .tip-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: border-color 0.25s, transform 0.25s;
+  }
+  .tip-card:hover { border-color: var(--border-hover); transform: translateX(3px); }
+  .tip-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .tip-body .tip-head { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .tip-body .tip-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  .btn-restart {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid var(--border-hover);
+    color: var(--text);
+    font-family: var(--font-head);
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 12px;
+    padding: 13px 26px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .btn-restart:hover { background: var(--surface); border-color: rgba(255,255,255,0.25); }
+
+  /* Animations */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+  .fadeup { animation: fadeUp 0.5s cubic-bezier(0.4,0,0.2,1) both; }
+  .delay1 { animation-delay: 0.1s; }
+  .delay2 { animation-delay: 0.2s; }
+  .delay3 { animation-delay: 0.3s; }
+  .delay4 { animation-delay: 0.45s; }
+  .delay5 { animation-delay: 0.6s; }
+
+  @media (max-width: 480px) {
+    .intro-cards { grid-template-columns: 1fr; }
+    .shell { padding: 28px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- ───── INTRO SCREEN ───── -->
+  <div id="screen-intro" class="screen active">
+    <div class="tag"><span class="dot"></span> Article companion quiz</div>
+
+    <h1 class="fadeup">
+      What kind of<br>
+      <span class="line2">AI Product Mind</span><br>
+      are you?
+    </h1>
+
+    <p class="intro-desc fadeup delay1">
+      Moving from traditional PM to AI Product Management requires more than learning new tools — it's a fundamental mindset shift. Take this 10-question quiz to discover where you stand today.
+    </p>
+
+    <div class="intro-cards fadeup delay2">
+      <div class="intro-card">
+        <div class="ic-icon">📋</div>
+        <div class="ic-label">Mindset Type 1</div>
+        <div class="ic-name">Traditional PM</div>
+      </div>
+      <div class="intro-card">
+        <div class="ic-icon">⚡</div>
+        <div class="ic-label">Mindset Type 2</div>
+        <div class="ic-name">AI-Powered PM</div>
+      </div>
+      <div class="intro-card">
+        <div class="ic-icon">🧠</div>
+        <div class="ic-label">Mindset Type 3</div>
+        <div class="ic-name">AI Product Builder</div>
+      </div>
+    </div>
+
+    <button class="btn-start fadeup delay3" onclick="startQuiz()">
+      Start the Quiz
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+    <p class="quiz-note fadeup delay3">10 questions · ~4 minutes · No sign-up required</p>
+  </div>
+
+  <!-- ───── QUIZ SCREEN ───── -->
+  <div id="screen-quiz" class="screen">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="q-meta">
+      <span class="q-num" id="q-num">Question 1 of 10</span>
+      <span class="q-category" id="q-cat">Strategy</span>
+    </div>
+    <p class="q-text" id="q-text"></p>
+    <div class="options" id="options-container"></div>
+    <button class="btn-next" id="btn-next" onclick="nextQuestion()">
+      Next
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </button>
+  </div>
+
+  <!-- ───── RESULT SCREEN ───── -->
+  <div id="screen-result" class="screen">
+    <div id="result-badge" class="result-badge"></div>
+    <h2 class="result-title fadeup" id="result-title"></h2>
+    <p class="result-desc fadeup delay1" id="result-desc"></p>
+
+    <div class="score-wrap fadeup delay2">
+      <div class="score-label">YOUR AI MINDSET SCORE</div>
+      <div class="score-track">
+        <div class="score-fill" id="score-fill" style="width:0%"></div>
+      </div>
+      <div class="score-markers">
+        <span>Traditional</span>
+        <span>AI-Powered</span>
+        <span>AI Builder</span>
+      </div>
+      <div class="score-num" id="score-num">0</div>
+      <div class="score-sub">out of 100</div>
+    </div>
+
+    <div class="dims fadeup delay3">
+      <div class="dims-title">Mindset Dimensions</div>
+      <div id="dims-container"></div>
+    </div>
+
+    <p class="tips-title fadeup delay4" id="tips-title"></p>
+    <div class="tips-grid fadeup delay5" id="tips-container"></div>
+
+    <button class="btn-restart fadeup delay5" onclick="restartQuiz()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      Retake the Quiz
+    </button>
+  </div>
+
+</div>
+
+  <footer style="position:relative;z-index:1;text-align:center;padding:28px 24px 40px;border-top:1px solid rgba(255,255,255,0.07);margin-top:40px;">
+    <p style="font-size:13px;color:#8A87A0;">Created by <span style="color:#F0EEF8;font-weight:500;">Amita Kuvalekar</span></p>
+  </footer>
+
+<script>
+const questions = [
+  {
+    cat: "Daily Workflow",
+    text: "When you sit down to write a product requirements document, what's your first instinct?",
+    opts: [
+      { t: "Open a blank doc and start from the structure I've used before", s: 0 },
+      { t: "Use an AI tool like ChatGPT or Claude to draft a skeleton, then edit heavily", s: 1 },
+      { t: "Think about how the AI feature I'm building will itself generate or surface requirements", s: 2 },
+    ]
+  },
+  {
+    cat: "AI Tool Usage",
+    text: "How do you currently use AI tools in your day-to-day product management work?",
+    opts: [
+      { t: "Rarely or never — I prefer my own judgment and established processes", s: 0 },
+      { t: "Regularly for specific tasks: summarising research, writing user stories, meeting notes", s: 1 },
+      { t: "AI is embedded in almost every workflow — I've built personal automations and prompting systems", s: 2 },
+    ]
+  },
+  {
+    cat: "Product Strategy",
+    text: "Your leadership asks for a new differentiating feature. Where does AI fit in your thinking?",
+    opts: [
+      { t: "AI isn't on my immediate radar — I focus on user pain points and core functionality first", s: 0 },
+      { t: "I'd use AI to analyse competitor data and user feedback to identify the opportunity faster", s: 1 },
+      { t: "I'd explore whether AI can be the feature itself — an intelligent layer that adapts to each user", s: 2 },
+    ]
+  },
+  {
+    cat: "Model Selection",
+    text: "If your product required an AI capability (e.g. classification, summarisation), how would you approach model selection?",
+    opts: [
+      { t: "I'd hand it to engineering and trust their decision", s: 0 },
+      { t: "I'd evaluate trade-offs around accuracy, cost, and latency at a high level, then guide the team", s: 1 },
+      { t: "I'd be actively involved: benchmarking models, reviewing fine-tuning options, and balancing build vs buy", s: 2 },
+    ]
+  },
+  {
+    cat: "Human-in-the-Loop",
+    text: "Your AI feature makes an incorrect recommendation visible to users. How did you plan for this?",
+    opts: [
+      { t: "I hadn't specifically planned for AI errors — I'd treat it like any other bug", s: 0 },
+      { t: "I ensured there's a feedback mechanism so users can flag mistakes", s: 1 },
+      { t: "I designed explicit human-in-the-loop checkpoints and fallback flows before launch", s: 2 },
+    ]
+  },
+  {
+    cat: "AI Safety & Ethics",
+    text: "How much do AI safety and bias considerations influence your product decisions?",
+    opts: [
+      { t: "Minimally — safety is mostly a legal/compliance concern handled by other teams", s: 0 },
+      { t: "I include safety reviews in my process and flag concerns, but I rely on specialists", s: 1 },
+      { t: "I proactively embed fairness audits, bias testing, and explainability requirements into my PRDs", s: 2 },
+    ]
+  },
+  {
+    cat: "AI Transparency",
+    text: "How do you think about communicating AI decisions to your end users?",
+    opts: [
+      { t: "I wouldn't surface the AI layer — users just need the outcome", s: 0 },
+      { t: "I'd add basic disclosures (e.g. 'Suggested by AI') where required", s: 1 },
+      { t: "I design for explainability: showing confidence scores, reasoning summaries, and data provenance where relevant", s: 2 },
+    ]
+  },
+  {
+    cat: "Pricing Strategy",
+    text: "You're designing the pricing model for an AI-powered feature. What's your approach?",
+    opts: [
+      { t: "Bundle it with the existing subscription — pricing is not something I shape", s: 0 },
+      { t: "Add a feature tier or usage-based add-on, similar to how SaaS tools typically handle premium features", s: 1 },
+      { t: "Model usage costs, token consumption, and value-per-inference to design a consumption-aware pricing strategy", s: 2 },
+    ]
+  },
+  {
+    cat: "Error Handling",
+    text: "How do you approach handling hallucinations or low-confidence AI outputs in your product?",
+    opts: [
+      { t: "I'd apply standard quality assurance — test before launch and patch as issues arise", s: 0 },
+      { t: "I'd set confidence thresholds and surface uncertainty to users in the UI", s: 1 },
+      { t: "I design multi-layered guardrails: output validation, graceful degradation paths, and user correction loops", s: 2 },
+    ]
+  },
+  {
+    cat: "AI Vision",
+    text: "How would you describe your overall product vision when it comes to AI?",
+    opts: [
+      { t: "AI is a tool that might improve efficiency — my core product vision stays unchanged", s: 0 },
+      { t: "AI accelerates how I work and I'm adding AI-powered features where they solve real user problems", s: 1 },
+      { t: "I'm building AI-native products where intelligence is the core value proposition, not a bolt-on", s: 2 },
+    ]
+  }
+];
+
+const dims = [
+  { name: "AI Tool Fluency", qs: [0,1] },
+  { name: "AI Product Design", qs: [2,3] },
+  { name: "Safety & Ethics", qs: [4,5,6] },
+  { name: "Business Acumen", qs: [7,8,9] }
+];
+
+const dimColors = ["#7C6FF7","#4ECDC4","#FF6B9D","#FFB347"];
+
+const profiles = [
+  {
+    min: 0, max: 33,
+    badge: "📋 Traditional PM",
+    badgeBg: "rgba(136,135,160,0.15)",
+    badgeColor: "#8A87A0",
+    badgeBorder: "rgba(136,135,160,0.3)",
+    title: "The Structured Strategist",
+    desc: "You have a solid product foundation rooted in proven processes, stakeholder management, and user empathy. Your strength is disciplined, structured thinking. The good news? The frameworks you know deeply transfer beautifully into AI product work — they just need a new lens. You're at the beginning of a significant mindset upgrade.",
+    scoreBg: "linear-gradient(90deg,#5F5E5A,#8A87A0)",
+    tipsTitle: "🚀 Your AI PM Upgrade Roadmap",
+    tips: [
+      { icon: "⚡", bg: "rgba(124,111,247,0.12)", head: "Start with AI tools in your daily workflow", text: "Use Claude or ChatGPT for PRD drafting, user story generation, and competitive research. Aim for 10+ AI-assisted tasks per week to build fluency fast." },
+      { icon: "📖", bg: "rgba(78,205,196,0.12)", head: "Learn the AI product vocabulary", text: "Familiarise yourself with LLMs, tokens, inference costs, confidence scores, and hallucination. You don't need to code — but you need the mental model." },
+      { icon: "🔍", bg: "rgba(255,107,157,0.12)", head: "Audit one existing feature for AI potential", text: "Pick a repetitive, data-rich flow in your product and map out how AI could augment it. Write the user story and acceptance criteria for an AI-assisted version." },
+      { icon: "🌐", bg: "rgba(255,179,71,0.12)", head: "Follow AI-native PMs in public", text: "Lenny Rachitsky, Shreyas Doshi, and AI-focused PM communities on LinkedIn publish weekly AI PM insights. Make it a 20-minute daily habit." }
+    ]
+  },
+  {
+    min: 34, max: 60,
+    badge: "⚡ AI-Powered PM",
+    badgeBg: "rgba(124,111,247,0.12)",
+    badgeColor: "#A89EF8",
+    badgeBorder: "rgba(124,111,247,0.3)",
+    title: "The Accelerated Operator",
+    desc: "You're leveraging AI meaningfully in your workflow and starting to think about AI features in your product. You understand the productivity gains and have begun translating that into product thinking. The next step is moving from using AI as a co-pilot to architecting AI as the core of the products you build.",
+    scoreBg: "linear-gradient(90deg,#7C6FF7,#4ECDC4)",
+    tipsTitle: "🧠 Level Up to AI Product Builder",
+    tips: [
+      { icon: "🏗️", bg: "rgba(124,111,247,0.12)", head: "Design one AI-native feature end-to-end", text: "Write a full spec for a feature where AI is the core logic — include model selection rationale, human-in-the-loop design, fallback states, and success metrics." },
+      { icon: "💰", bg: "rgba(78,205,196,0.12)", head: "Get comfortable with AI pricing models", text: "Map your AI feature's token consumption and inference cost to a unit economics model. Understand the difference between flat-fee, usage-based, and value-based pricing for AI." },
+      { icon: "🛡️", bg: "rgba(255,107,157,0.12)", head: "Embed safety into your PRD template", text: "Add a dedicated 'AI Safety & Bias' section to every PRD you write. Define what 'safe output' looks like, what guardrails exist, and how errors are surfaced to users." },
+      { icon: "📊", bg: "rgba(255,179,71,0.12)", head: "Learn to read model evaluation results", text: "Ask your ML team to walk you through benchmarks, precision/recall trade-offs, and A/B testing AI outputs. Understanding these will make you a far stronger partner." }
+    ]
+  },
+  {
+    min: 61, max: 80,
+    badge: "🌗 Emerging AI Builder",
+    badgeBg: "rgba(78,205,196,0.1)",
+    badgeColor: "#4ECDC4",
+    badgeBorder: "rgba(78,205,196,0.3)",
+    title: "The Emerging AI Architect",
+    desc: "You're transitioning from thinking about AI as a feature to treating it as a foundational product capability. You understand model trade-offs, safety principles, and the nuances of AI-native design. A few more deliberate reps and you'll be fully operating as an AI Product Builder — someone who can set the AI strategy for an entire product line.",
+    scoreBg: "linear-gradient(90deg,#4ECDC4,#7C6FF7)",
+    tipsTitle: "🏆 Sharpen Your AI Builder Edge",
+    tips: [
+      { icon: "🧩", bg: "rgba(124,111,247,0.12)", head: "Build a personal AI experimentation log", text: "Document every AI model, prompt pattern, or architecture decision you encounter. Over time, this becomes your proprietary knowledge base — a major career differentiator." },
+      { icon: "🤝", bg: "rgba(78,205,196,0.12)", head: "Collaborate on a fine-tuning or RAG project", text: "Work alongside your ML team to understand how domain-specific data improves model performance. Articulating this to business stakeholders is a rare and valued skill." },
+      { icon: "📣", bg: "rgba(255,107,157,0.12)", head: "Write and publish your AI product thinking", text: "Share one LinkedIn article or internal case study per month on AI product decisions you've made. Teaching accelerates mastery and builds your personal brand." },
+      { icon: "🎯", bg: "rgba(255,179,71,0.12)", head: "Own the AI roadmap narrative", text: "Volunteer to present the AI roadmap to leadership. Translating AI capabilities into business outcomes is what separates AI PMs from AI enthusiasts." }
+    ]
+  },
+  {
+    min: 81, max: 100,
+    badge: "🧠 AI Product Builder",
+    badgeBg: "rgba(255,107,157,0.1)",
+    badgeColor: "#FF6B9D",
+    badgeBorder: "rgba(255,107,157,0.3)",
+    title: "The AI Product Architect",
+    desc: "You think in AI systems, not features. You understand model selection, inference economics, safety-by-design, explainability, and how to price intelligence. You're already operating at the frontier of AI Product Management. Your mindset is rare — the industry needs more PMs who combine strategic product sense with deep AI literacy.",
+    scoreBg: "linear-gradient(90deg,#FF6B9D,#FFB347)",
+    tipsTitle: "🌟 Stay at the Frontier",
+    tips: [
+      { icon: "🔬", bg: "rgba(124,111,247,0.12)", head: "Engage directly with foundation model research", text: "Read Anthropic, OpenAI, and Google DeepMind papers — not to be a researcher, but to anticipate what becomes productisable in 12-18 months. That foresight is your edge." },
+      { icon: "🏛️", bg: "rgba(78,205,196,0.12)", head: "Champion AI governance frameworks internally", text: "Propose an AI review board or responsible AI checklist for your organisation. Shaping how your company approaches AI at a structural level is leadership-level impact." },
+      { icon: "🌍", bg: "rgba(255,107,157,0.12)", head: "Mentor the next generation of AI PMs", text: "Share what you know. Writing frameworks, running workshops, or coaching junior PMs on AI product thinking multiplies your impact exponentially." },
+      { icon: "🚀", bg: "rgba(255,179,71,0.12)", head: "Explore agentic product patterns", text: "The next frontier is autonomous AI agents that take actions, not just generate content. Start scoping what an AI agent means for your product category — you're ready for it." }
+    ]
+  }
+];
+
+let current = 0;
+let answers = [];
+let selectedIdx = null;
+
+function startQuiz() {
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const letters = ['A','B','C','D'];
+  document.getElementById('q-num').textContent = `Question ${current+1} of ${questions.length}`;
+  document.getElementById('q-cat').textContent = q.cat;
+  document.getElementById('q-text').textContent = q.text;
+  document.getElementById('progress-fill').style.width = `${(current/questions.length)*100}%`;
+
+  const container = document.getElementById('options-container');
+  container.innerHTML = '';
+  q.opts.forEach((opt,i) => {
+    const el = document.createElement('button');
+    el.className = 'option';
+    el.innerHTML = `<span class="opt-letter">${letters[i]}</span><span class="opt-text">${opt.t}</span>`;
+    el.addEventListener('click', () => selectOption(i));
+    container.appendChild(el);
+  });
+
+  selectedIdx = null;
+  const btn = document.getElementById('btn-next');
+  btn.classList.remove('visible');
+  btn.textContent = current === questions.length-1 ? 'See My Results' : 'Next';
+  if (current === questions.length-1) {
+    btn.innerHTML = 'See My Results <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  } else {
+    btn.innerHTML = 'Next <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  }
+}
+
+function selectOption(idx) {
+  if (document.querySelector('.option.locked')) return;
+  selectedIdx = idx;
+  document.querySelectorAll('.option').forEach((el,i) => {
+    el.classList.toggle('selected', i === idx);
+  });
+  document.getElementById('btn-next').classList.add('visible');
+}
+
+function nextQuestion() {
+  if (selectedIdx === null) return;
+  answers.push(questions[current].opts[selectedIdx].s);
+  current++;
+  if (current < questions.length) {
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  // Compute overall score (0-100)
+  const maxScore = questions.length * 2;
+  const raw = answers.reduce((a,b)=>a+b,0);
+  const score = Math.round((raw / maxScore) * 100);
+
+  // Compute dimension scores
+  const dimScores = dims.map(d => {
+    const possible = d.qs.length * 2;
+    const got = d.qs.reduce((a,qi)=>a+answers[qi],0);
+    return Math.round((got/possible)*100);
+  });
+
+  // Pick profile
+  const profile = profiles.find(p => score >= p.min && score <= p.max) || profiles[profiles.length-1];
+
+  // Render badge
+  const badge = document.getElementById('result-badge');
+  badge.textContent = profile.badge;
+  badge.style.background = profile.badgeBg;
+  badge.style.color = profile.badgeColor;
+  badge.style.border = `1px solid ${profile.badgeBorder}`;
+
+  document.getElementById('result-title').textContent = profile.title;
+  document.getElementById('result-desc').textContent = profile.desc;
+
+  // Score fill
+  document.getElementById('score-fill').style.background = profile.scoreBg;
+  document.getElementById('score-num').textContent = score;
+
+  // Animate score
+  setTimeout(() => {
+    document.getElementById('score-fill').style.width = score + '%';
+  }, 100);
+
+  // Dims
+  const dimsEl = document.getElementById('dims-container');
+  dimsEl.innerHTML = '';
+  dims.forEach((d,i) => {
+    const v = dimScores[i];
+    dimsEl.innerHTML += `
+      <div class="dim-row">
+        <div class="dim-top">
+          <span class="dim-name">${d.name}</span>
+          <span class="dim-val" style="color:${dimColors[i]}">${v}%</span>
+        </div>
+        <div class="dim-track"><div class="dim-fill" id="df${i}" style="width:0%;background:${dimColors[i]}"></div></div>
+      </div>`;
+  });
+  setTimeout(() => {
+    dims.forEach((_,i) => {
+      document.getElementById('df'+i).style.width = dimScores[i]+'%';
+    });
+  }, 200);
+
+  // Tips
+  document.getElementById('tips-title').textContent = profile.tipsTitle;
+  const tipsEl = document.getElementById('tips-container');
+  tipsEl.innerHTML = profile.tips.map(tip => `
+    <div class="tip-card">
+      <div class="tip-icon" style="background:${tip.bg}">${tip.icon}</div>
+      <div class="tip-body">
+        <div class="tip-head">${tip.head}</div>
+        <div class="tip-text">${tip.text}</div>
+      </div>
+    </div>`).join('');
+
+  showScreen('screen-result');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function restartQuiz() {
+  current = 0;
+  answers = [];
+  selectedIdx = null;
+  showScreen('screen-intro');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+</script>
+</body>
+</html>
